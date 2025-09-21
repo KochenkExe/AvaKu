@@ -1,5 +1,6 @@
 package hj.dp.avaku
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -48,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import hj.dp.avaku.ui.theme.AvaKuTheme
 import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 
 class MainActivity : ComponentActivity() {
@@ -410,6 +415,7 @@ fun ProfileScreen(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarScreen(
@@ -450,43 +456,67 @@ fun AvatarScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(3f / 4f)
                         .wrapContentSize(Alignment.Center)
                 ) {
+                    val faceWidth = maxWidth
+                    val faceHeight = maxHeight
+
                     Image(
                         painter = painterResource(id = R.drawable.dasar),
                         contentDescription = "Dasar wajah",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds
                     )
-                    if (showEyes) {
-                        Image(
-                            painter = painterResource(id = R.drawable.mata),
-                            contentDescription = "Mata",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
                     if (showEyebrows) {
                         Image(
                             painter = painterResource(id = R.drawable.alis),
                             contentDescription = "Alis",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .width(faceWidth * (540f / 911f))
+                            .aspectRatio(597f / 59f)
+                            .offset(y = faceHeight * 0.34f),
+                            contentScale = ContentScale.FillBounds
                         )
                     }
-                    if (showMouth) {
+                    if (showEyes) {
                         Image(
-                            painter = painterResource(id = R.drawable.mulut),
-                            contentDescription = "Mulut",
-                            modifier = Modifier.fillMaxSize()
+                            painter = painterResource(id = R.drawable.mata),
+                            contentDescription = "Mata",
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .width(faceWidth * (520f / 911f))
+                                .aspectRatio(601f / 174f)
+                                .offset(y = faceHeight * 0.38f),
+                            contentScale = ContentScale.FillBounds
                         )
                     }
                     if (showNose) {
                         Image(
                             painter = painterResource(id = R.drawable.hidung),
                             contentDescription = "Hidung",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .width(faceWidth * (181f / 911f))
+                                .aspectRatio(181f / 126f)
+                                .offset(y = faceHeight * 0.50f),
+                            contentScale = ContentScale.FillBounds
+                        )
+                    }
+                    if (showMouth) {
+                        Image(
+                            painter = painterResource(id = R.drawable.mulut),
+                            contentDescription = "Mulut",
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .width(faceWidth * (237f / 911f))
+                                .aspectRatio(237f / 131f)
+                                .offset(y = faceHeight * 0.63f),
+                            contentScale = ContentScale.FillBounds
                         )
                     }
                 }
