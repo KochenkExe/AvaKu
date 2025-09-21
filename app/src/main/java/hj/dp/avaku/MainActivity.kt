@@ -40,7 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -417,7 +417,7 @@ fun AvatarScreen(
 ) {
     var showEyes by rememberSaveable { mutableStateOf(true) }
     var showEyebrows by rememberSaveable { mutableStateOf(true) }
-    var showSmile by rememberSaveable { mutableStateOf(true) }
+    var showNose by rememberSaveable { mutableStateOf(true) }
     var showMouth by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
@@ -457,35 +457,35 @@ fun AvatarScreen(
                         .wrapContentSize(Alignment.Center)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.face_0004),
+                        painter = painterResource(id = R.drawable.dasar),
                         contentDescription = "Dasar wajah",
                         modifier = Modifier.fillMaxSize()
                     )
                     if (showEyes) {
                         Image(
-                            painter = painterResource(id = R.drawable.face_0002),
+                            painter = painterResource(id = R.drawable.mata),
                             contentDescription = "Mata",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     if (showEyebrows) {
                         Image(
-                            painter = painterResource(id = R.drawable.face_0000),
+                            painter = painterResource(id = R.drawable.alis),
                             contentDescription = "Alis",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     if (showMouth) {
                         Image(
-                            painter = painterResource(id = R.drawable.face_0003),
+                            painter = painterResource(id = R.drawable.mulut),
                             contentDescription = "Mulut",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    if (showSmile) {
+                    if (showNose) {
                         Image(
-                            painter = painterResource(id = R.drawable.face_0001),
-                            contentDescription = "Senyuman",
+                            painter = painterResource(id = R.drawable.hidung),
+                            contentDescription = "Hidung",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -512,9 +512,9 @@ fun AvatarScreen(
                     onCheckedChange = { showMouth = it }
                 )
                 AvatarFeatureToggle(
-                    label = "Tampilkan Senyuman",
-                    checked = showSmile,
-                    onCheckedChange = { showSmile = it }
+                    label = "Tampilkan Hidung",
+                    checked = showNose,
+                    onCheckedChange = { showNose = it }
                 )
             }
         }
