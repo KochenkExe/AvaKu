@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class AppScreen {
+    Home,
     Registration,
     Login,
     Profile,
@@ -86,10 +87,19 @@ data class UserProfile(
 
 @Composable
 fun AvaKuApp() {
-    var currentScreen by rememberSaveable { mutableStateOf(AppScreen.Registration) }
+    var currentScreen by rememberSaveable { mutableStateOf(AppScreen.Home) }
     var userProfile by remember { mutableStateOf<UserProfile?>(null) }
 
     when (currentScreen) {
+        AppScreen.Home -> {
+            HomeScreen(
+                onNavigateToRegistration = { currentScreen = AppScreen.Registration },
+                onNavigateToLogin = { currentScreen = AppScreen.Login },
+                onNavigateToProfile = { currentScreen = AppScreen.Profile },
+                onNavigateToAvatar = { currentScreen = AppScreen.Avatar }
+            )
+        }
+
         AppScreen.Registration -> {
             RegistrationScreen(
                 onSave = { profile ->
@@ -98,6 +108,9 @@ fun AvaKuApp() {
                 },
                 onNavigateToLogin = {
                     currentScreen = AppScreen.Login
+                },
+                onNavigateToHome = {
+                    currentScreen = AppScreen.Home
                 }
             )
         }
@@ -110,6 +123,9 @@ fun AvaKuApp() {
                 },
                 onNavigateToRegistration = {
                     currentScreen = AppScreen.Registration
+                },
+                onNavigateToHome = {
+                    currentScreen = AppScreen.Home
                 }
             )
         }
@@ -117,26 +133,99 @@ fun AvaKuApp() {
         AppScreen.Profile -> {
             val profile = userProfile
             if (profile == null) {
-                currentScreen = AppScreen.Registration
+                currentScreen = AppScreen.Home
             } else {
                 ProfileScreen(
                     profile = profile,
                     onLogout = {
-                        currentScreen = AppScreen.Login
+                        currentScreen = AppScreen.Home
                     },
                     onShowAvatar = {
                         currentScreen = AppScreen.Avatar
+                    },
+                    onNavigateToHome = {
+                        currentScreen = AppScreen.Home
                     }
                 )
             }
         }
 
         AppScreen.Avatar -> {
-            AvatarScreen(
-                onBack = {
-                    currentScreen = AppScreen.Profile
-                }
+            val profile = userProfile
+            if (profile == null) {
+                currentScreen = AppScreen.Home
+            } else {
+                AvatarScreen(
+                    onNavigateToHome = {
+                        currentScreen = AppScreen.Home
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    onNavigateToRegistration: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNavigateToAvatar: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(title = { Text(text = "AvaKu") })
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+        ) {
+            Text(
+                text = "Selamat datang di AvaKu!",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
+            Text(
+                text = "Pilih halaman yang ingin Anda kunjungi:",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = onNavigateToRegistration,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Registrasi")
+            }
+
+            Button(
+                onClick = onNavigateToLogin,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Login")
+            }
+
+            Button(
+                onClick = onNavigateToProfile,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Profil User")
+            }
+
+            Button(
+                onClick = onNavigateToAvatar,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Avatar")
+            }
         }
     }
 }
@@ -145,7 +234,8 @@ fun AvaKuApp() {
 @Composable
 fun RegistrationScreen(
     onSave: (UserProfile) -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onNavigateToHome: () -> Unit
 ) {
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
@@ -171,7 +261,12 @@ fun RegistrationScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Registrasi User") }
+                title = { Text(text = "Registrasi User") },
+                navigationIcon = {
+                    TextButton(onClick = onNavigateToHome) {
+                        Text(text = "Home")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -269,7 +364,8 @@ fun RegistrationScreen(
 fun LoginScreen(
     registeredUser: UserProfile?,
     onLoginSuccess: () -> Unit,
-    onNavigateToRegistration: () -> Unit
+    onNavigateToRegistration: () -> Unit,
+    onNavigateToHome: () -> Unit
 ) {
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -285,7 +381,14 @@ fun LoginScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text(text = "Login") })
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Login") },
+                navigationIcon = {
+                    TextButton(onClick = onNavigateToHome) {
+                        Text(text = "Home")
+                    }
+                }
+            )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -353,13 +456,19 @@ fun LoginScreen(
 fun ProfileScreen(
     profile: UserProfile,
     onLogout: () -> Unit,
-    onShowAvatar: () -> Unit
+    onShowAvatar: () -> Unit,
+    onNavigateToHome: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(text = "Profil User") },
+                navigationIcon = {
+                    TextButton(onClick = onNavigateToHome) {
+                        Text(text = "Home")
+                    }
+                },
                 actions = {
                     TextButton(onClick = onLogout) {
                         Text(text = "Logout", color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -418,7 +527,7 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarScreen(
-    onBack: () -> Unit
+    onNavigateToHome: () -> Unit
 ) {
     var showEyes by rememberSaveable { mutableStateOf(true) }
     var showEyebrows by rememberSaveable { mutableStateOf(true) }
@@ -430,18 +539,15 @@ fun AvatarScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = "Avatar") },
                 navigationIcon = {
-                    TextButton(onClick = onBack) {
-                        Text(text = "Kembali")
+                    TextButton(onClick = onNavigateToHome) {
+                        Text(text = "Home")
                     }
                 }
             )
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(20.dp)
-                .fillMaxSize(),
+            modifier = Modifier.padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -450,11 +556,6 @@ fun AvatarScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Sesuaikan avatar Anda",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -521,27 +622,27 @@ fun AvatarScreen(
                 }
             }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+            Row (
+                modifier = Modifier.fillMaxWidth().padding(top = 100.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 AvatarFeatureToggle(
-                    label = "Tampilkan Mata",
+                    label = "Mata",
                     checked = showEyes,
                     onCheckedChange = { showEyes = it }
                 )
                 AvatarFeatureToggle(
-                    label = "Tampilkan Alis",
+                    label = "Alis",
                     checked = showEyebrows,
                     onCheckedChange = { showEyebrows = it }
                 )
                 AvatarFeatureToggle(
-                    label = "Tampilkan Mulut",
+                    label = "Mulut",
                     checked = showMouth,
                     onCheckedChange = { showMouth = it }
                 )
                 AvatarFeatureToggle(
-                    label = "Tampilkan Hidung",
+                    label = "Hidung",
                     checked = showNose,
                     onCheckedChange = { showNose = it }
                 )
@@ -557,12 +658,12 @@ fun AvatarFeatureToggle(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier,
+        verticalAlignment = Alignment.CenterVertically,
+
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyLarge)
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -598,7 +699,7 @@ fun RegistrationField(
 @Composable
 fun RegistrationPreview() {
     AvaKuTheme {
-        RegistrationScreen(onSave = {}, onNavigateToLogin = {})
+        RegistrationScreen(onSave = {}, onNavigateToLogin = {}, onNavigateToHome = {})
     }
 }
 
@@ -606,7 +707,12 @@ fun RegistrationPreview() {
 @Composable
 fun LoginPreview() {
     AvaKuTheme {
-        LoginScreen(registeredUser = null, onLoginSuccess = {}, onNavigateToRegistration = {})
+        LoginScreen(
+            registeredUser = null,
+            onLoginSuccess = {},
+            onNavigateToRegistration = {},
+            onNavigateToHome = {}
+        )
     }
 }
 
@@ -626,7 +732,8 @@ fun ProfilePreview() {
                 hobby = "Membaca"
             ),
             onLogout = {},
-            onShowAvatar = {}
+            onShowAvatar = {},
+            onNavigateToHome = {}
         )
     }
 }
@@ -635,6 +742,19 @@ fun ProfilePreview() {
 @Composable
 fun AvatarPreview() {
     AvaKuTheme {
-        AvatarScreen(onBack = {})
+        AvatarScreen(onNavigateToHome = {})
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+fun HomePreview() {
+    AvaKuTheme {
+        HomeScreen(
+            onNavigateToRegistration = {},
+            onNavigateToLogin = {},
+            onNavigateToProfile = {},
+            onNavigateToAvatar = {}
+        )
     }
 }
