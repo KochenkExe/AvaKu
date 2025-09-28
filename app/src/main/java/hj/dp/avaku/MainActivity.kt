@@ -53,6 +53,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.window.Dialog
+import androidx.compose.material3.Surface
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,11 +155,11 @@ fun AvaKuApp() {
         AppScreen.Avatar -> {
             val profile = userProfile
             if (profile == null) {
-                currentScreen = AppScreen.Home
+                currentScreen = AppScreen.Profile
             } else {
                 AvatarScreen(
-                    onNavigateToHome = {
-                        currentScreen = AppScreen.Home
+                    onBack = {
+                        currentScreen = AppScreen.Profile
                     }
                 )
             }
@@ -217,7 +219,7 @@ fun HomeScreen(
                 onClick = onNavigateToProfile,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Profil User")
+                Text(text = "Profil")
             }
 
             Button(
@@ -460,6 +462,7 @@ fun ProfileScreen(
     onNavigateToHome: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    var showAvatarDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -513,6 +516,19 @@ fun ProfileScreen(
                 Text(text = "Lihat Avatar")
             }
 
+            Button(
+                onClick = {showAvatarDialog = true},
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Lihat Dialog Avatar")
+            }
+
+            if (showAvatarDialog) {
+                AvatarDialog(
+                    onDismissRequest = { showAvatarDialog = false }
+                )
+            }
+
             Text(
                 text = "Terima kasih telah menggunakan aplikasi AvaKu!",
                 style = MaterialTheme.typography.bodyMedium,
@@ -527,7 +543,7 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarScreen(
-    onNavigateToHome: () -> Unit
+    onBack: () -> Unit
 ) {
     var showEyes by rememberSaveable { mutableStateOf(true) }
     var showEyebrows by rememberSaveable { mutableStateOf(true) }
@@ -539,8 +555,8 @@ fun AvatarScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = "Avatar") },
                 navigationIcon = {
-                    TextButton(onClick = onNavigateToHome) {
-                        Text(text = "Home")
+                    TextButton(onClick = onBack) {
+                        Text(text = "Kembali")
                     }
                 }
             )
@@ -622,19 +638,19 @@ fun AvatarScreen(
                 }
             }
 
-            Row (
-                modifier = Modifier.fillMaxWidth().padding(top = 100.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceAround
             ) {
-                AvatarFeatureToggle(
-                    label = "Mata",
-                    checked = showEyes,
-                    onCheckedChange = { showEyes = it }
-                )
                 AvatarFeatureToggle(
                     label = "Alis",
                     checked = showEyebrows,
                     onCheckedChange = { showEyebrows = it }
+                )
+                AvatarFeatureToggle(
+                    label = "Mata",
+                    checked = showEyes,
+                    onCheckedChange = { showEyes = it }
                 )
                 AvatarFeatureToggle(
                     label = "Mulut",
@@ -645,6 +661,30 @@ fun AvatarScreen(
                     label = "Hidung",
                     checked = showNose,
                     onCheckedChange = { showNose = it }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AvatarDialog(
+    onDismissRequest: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp
+        ) {
+            Row (
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                AvatarScreen (
+                    onBack = {
+                        onDismissRequest()
+                    }
                 )
             }
         }
@@ -742,7 +782,7 @@ fun ProfilePreview() {
 @Composable
 fun AvatarPreview() {
     AvaKuTheme {
-        AvatarScreen(onNavigateToHome = {})
+        AvatarScreen(onBack = {})
     }
 }
 
